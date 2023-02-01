@@ -1,0 +1,79 @@
+{
+  "windowSettings": {
+    "width": 1024,
+    "height": 600,
+    "borderless": false,
+    "resizable": true
+  },
+  "controlSettings": {
+    "controlType": "controller"
+  },
+  "keyboardKeybinds": {
+    "speedUp": "w",
+    "speedDown": "s",
+    "steerLeft": "a",
+    "steerRight": "d",
+    "speedBrake": "b"
+  },
+  "controllerKeybinds": {
+    "UP": "ABS_HAT0Y_-1",
+    "DOWN": "ABS_HAT0Y_1",
+    "LEFT": "ABS_HAT0X_-1",
+    "RIGHT": "ABS_HAT0X_1",
+    "Y": "BTN_NORTH",
+    "A": "BTN_SOUTH",
+    "B": "BTN_EAST",
+    "X": "BTN_WEST",
+    "LT": "ABS_Z",
+    "LB": "BTN_TL",
+    "RT": "ABS_RZ",
+    "RB": "BTN_TR",
+    "START": "BTN_START",
+    "BACK": "BTN_BACK"
+  },
+  "columnSize": {
+    "col1": 220,
+    "col2": 440
+  },
+  "rowSize": {
+    "label": 30,
+    "progressBar": 20,
+    "checkButton": 30,
+    "toggleButton": 30
+  },
+  "paddingSize": {
+    "labelFrame": 12,
+    "appFrame": 8,
+    "frame": 0
+  },
+  "fontSettings": {
+    "family": "Bahnschrift",
+    "weight": "bold",
+    "size": 10
+  },
+  "camSettings": {
+    "port": 0,
+    "resolutionWidth": 1280,
+    "resolutionHeight": 720,
+    "targetFPS": 60
+  },
+  "imageSettings": {
+    "width": 705,
+    "height": 405,
+    "targetFPS": 60
+  },
+  "graphSettings": {
+    "refreshRate": 2000,
+    "maxPoints": 60,
+    "minPoints": 2,
+    "fontColor": "#51B7EB",
+    "lineColor": "#51B7EB",
+    "axisColor": "#f2f2f2"
+  },
+  "labelSettings": {
+    "refreshRate": 1000
+  },
+  "dataSettings": {
+    "pollingRate": 1000
+  }
+}
