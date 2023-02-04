@@ -2,7 +2,7 @@
   "windowSettings": {
     "width": 1024,
     "height": 600,
-    "borderless": false,
+    "borderless": true,
     "resizable": true
   },
   "controlSettings": {

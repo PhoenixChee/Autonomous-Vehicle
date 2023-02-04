@@ -131,7 +131,7 @@ def plotGraphTemp():
 
     # Plot Graph & Save Graph as Transparent Image
     plt.plot(x, y, color=data['graphSettings']['lineColor'])
-    plt.savefig('./GUIs/Images/Graph.png', transparent=True)
+    plt.savefig('./GUIs/Images/graph.png', transparent=True)
     plt.close()
 
 
@@ -142,7 +142,7 @@ def updateGraphTemp(frame):
         plotGraphTemp()     # Plot Graph Coordinates
 
         # Configure Target Frame as Graph Image
-        photo = ImageTk.PhotoImage(file='./GUIs/Images/Graph.png')
+        photo = ImageTk.PhotoImage(file='./GUIs/Images/graph.png')
         frame.configure(image=photo)
         frame.after(data['graphSettings']['refreshRate'], lambda: updateGraphTemp(frame))
 
