@@ -17,21 +17,21 @@ This project aims to produce a system capable of controlling the vehicle with co
 # How to Control
 The project uses a Logitech F710 controller to control the vehicle. The key mappings are shown below on the table. The Key ID is derived using a Python Package called [Inputs](https://inputs.readthedocs.io/en/latest/).
 
-| Controls             	| Key ID         	| Key          	|
-|----------------------	|----------------	|:------------:	|
-| Enable Control Loop  	| BTN_START      	| Start        	|
-| Disconnect           	| BTN_BACK       	| Back         	|
-| Motor Forward        	| ABS_HAY0Y_-1   	| ▲           	|
-| Motor Backwards      	| ABS_HAY0Y_1    	| ▼           	|
-| Steer Left           	| ABS_HAY0X_-1   	| ◀         	  |
-| Steer Right          	| ABS_HAY0X_1    	| ▶        	    |
-| Steer Calibration    	| BTN_NORTH      	| Y            	|
-| Steer to Center      	| BTN_SOUTH      	| A            	|
-| Motor Stop           	| BTN_EAST       	| B            	|
-| Motor Calibration    	| BTN_WEST       	| X            	|
-| Start Training       	| BTN_TL         	| LB 	          |
-| Stop Training        	| BTN_TR         	| RB	          |
-| Enable Motor Control 	| ABS_Z & ABS_RZ 	| LT RT     	  |
+| Controls             	| Key ID         	| Key     	|
+|----------------------	|----------------	|:-------:	|
+| Enable Control Loop  	| BTN_START      	| Start   	|
+| Disconnect           	| BTN_BACK       	| Back    	|
+| Motor Forward        	| ABS_HAY0Y_-1   	| △       	|
+| Motor Backwards      	| ABS_HAY0Y_1    	| ▽       	|
+| Steer Left           	| ABS_HAY0X_-1   	| ◁       	|
+| Steer Right          	| ABS_HAY0X_1    	| ▷       	|
+| Steer Calibration    	| BTN_NORTH      	| Y       	|
+| Steer to Center      	| BTN_SOUTH      	| A       	|
+| Motor Stop           	| BTN_EAST       	| B       	|
+| Motor Calibration    	| BTN_WEST       	| X       	|
+| Start Training       	| BTN_TL         	| LB      	|
+| Stop Training        	| BTN_TR         	| RB      	|
+| Enable Motor Control 	| ABS_Z & ABS_RZ 	| LT & RT 	|
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

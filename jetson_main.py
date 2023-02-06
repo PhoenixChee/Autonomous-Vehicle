@@ -109,8 +109,7 @@ def get_state_result(data):
     result = axis_states[data]
     return result
         
-
-        
+    
 # <<<ODRIVE>>> #
 def power():
     global odrv, odrv_status
