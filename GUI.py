@@ -617,9 +617,11 @@ class Tab2(ttk.Frame):
         class Box_2(ttk.Labelframe):
             def __init__(self, parent):
                 super().__init__(parent, text='Camera', padding=data['paddingSize']['labelFrame'])
-
+                
                 self.label = ttk.Label(self)
                 self.label.pack(expand=1)
+                
+                showCameraDisabled(self.label)
 
         # Set Layout UI Boxes
         self.columnconfigure(0, weight=1, uniform='1')

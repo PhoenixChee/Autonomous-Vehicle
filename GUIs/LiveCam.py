@@ -27,7 +27,7 @@ def switchCamera(frame, toggle):
     elif toggle.get() == 0:
         camOn = False
         cap.release()
-        frame.configure(image='')
+        showCameraDisabled(frame)
 
 
 # showFrames() reads the captured frames and display them as a image using Pillow
@@ -43,6 +43,13 @@ def showFrames(frame):
         frame.imgtk = imgtk
         frame.configure(image=imgtk)
         frame.after(int(1000/data['imageSettings']['targetFPS']), lambda: showFrames(frame))
+
+
+# showCemeraDisbled() show camera-disabled.png
+def showCameraDisabled(frame):
+    photo = ImageTk.PhotoImage(file='./GUIs/Images/camera-disabled.png')
+    frame.photo = photo # Hold a reference to the TkInter object by attaching it to a widget(frame) attribute 
+    frame.configure(image=photo)
 
 
 # camSettings() gets the actual camera configurations

@@ -36,10 +36,10 @@ cam = cv2.VideoCapture(0)
 
 
 command_instruction = {
-    'calibration':lambda:calibration_m1(),
+    'motor_calibration':lambda:calibration_m1(),
     'forward':lambda:move_m1(0.3),
     'reverse':lambda:move_m1(-0.3),
-    'stop':lambda:move_m1(0),
+    'motor_stop':lambda:move_m1(0),
     'disconnect':lambda:disconnect(),
     'start_training':lambda:start_training(),
     'stop_training':lambda:stop_training()

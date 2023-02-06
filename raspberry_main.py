@@ -184,10 +184,10 @@ def steering_cal():
         reading = read_steering_encoder(1)
         left_max_mean_left_encoder += reading
     left_max_mean_left_encoder /= 10
-    for _ in range(10):
-        reading = read_steering_encoder(0)
-        left_max_mean_right_encoder += reading
-    left_max_mean_right_encoder /= 10
+    # for _ in range(10):
+    #     reading = read_steering_encoder(0)
+    #     left_max_mean_right_encoder += reading
+    # left_max_mean_right_encoder /= 10
     
     # Steer to Max Right & Calibrate Both Potentiometer
     while not gpio.input(right_limit):
@@ -222,6 +222,39 @@ def steering_cal():
     print('Steering Calibration Complete')
 
 
+def steering_to_center():
+    global digital_steer
+
+    conn_jetson.send(bytes('angle' + str(0), encoding = 'utf-8'))
+    steer_to_angle(left_center_angle, 1)
+    
+    dic = {'steer_angle': 0}
+    
+    import shared_variables
+    update_dic(dic, shared_variables.steer_dic)
+    
+
+def steering(state):
+    global digital_steer
+    
+    if state == -1 and digital_steer > -5:
+        digital_steer -= 1
+    if state == 1 and digital_steer < 5:
+        digital_steer += 1
+        
+    conn_jetson.send(bytes('angle' + str(digital_steer), encoding = 'utf-8'))
+    steer_to_angle(left_steering_range / 10 * digital_steer + (left_center_angle), 1)
+    
+    dic = {'steer_angle': digital_steer * 3}
+    
+    import shared_variables
+    update_dic(dic, shared_variables.steer_dic)
+
+
+def update_dic(dic, shared_dic):
+    shared_dic.update(dic)
+
+
 def controller_command_handling():
     global digital_steer, terminate_socket, j, conn_jetson
     
@@ -236,21 +269,21 @@ def controller_command_handling():
                 keybindCommandDict[event.code](event.state)
             
             # BUTTONS OVERVIEW #
-            # CONTROL LOOP              >>> START_BTN
-            # DISCONNECT                >>> BACK_BTN
-            # STEER LEFTRIGHT           >>> ABS_HAY0X
-            # MOTOR FORWARD/BACKWARD    >>> ABS_HAYOY
-            # MOTOR CALIBRATION         >>> WEST_BTN (X)
-            # STEER CALIBRATION         >>> NORTH_BTN (Y)
-            # STEER TO CENTER           >>> SOUTH_BTN (A)
-            # MOTOR STOP                >>> EAST_BTN (B)
+            # CONTROL LOOP              >>> BTN_START
+            # DISCONNECT                >>> BTN_BACK
+            # STEER LEFT/RIGHT          >>> ABS_HAY0X (-1)(1)
+            # MOTOR FORWARD/BACKWARD    >>> ABS_HAYOY (-1)(1)
+            # STEER CALIBRATION         >>> BTN_NORTH (Y)
+            # STEER TO CENTER           >>> BTN_SOUTH (A)
+            # MOTOR STOP                >>> BTN_EAST (B)
+            # MOTOR CALIBRATION         >>> BTN_WEST (X)
             # START TRAINING            >>> BTN_TR
             # STOP TRAINING             >>> BTN_TL
             # ENABLE MOTOR CONTROL      >>> ABS_RZ & ABS_Z
             
             # Steering Calibration
             if event.code == 'BTN_START' and event.state == 1:
-                conn_jetson.send(b'calibration')
+                print('Control Loop')
             # Quit Program
             elif event.code == 'BTN_BACK' and event.state == 1:
                 set_motor_power(0)
@@ -263,18 +296,20 @@ def controller_command_handling():
                 return
               
             # Action Buttons (X)(Y)(A)(B)
-            elif event.code == 'BTN_EAST' and event.state == 1:
-                conn_jetson.send(b'stop')
-            elif event.code == 'BTN_WEST' and event.state == 1:
-                conn_jetson.send(b'start_training')
+            elif event.code == 'BTN_NORTH' and event.state == 1:
+                steering_cal()
             elif event.code == 'BTN_SOUTH' and event.state == 1:
                 steering_to_center()
+            elif event.code == 'BTN_EAST' and event.state == 1:
+                conn_jetson.send(b'motor_stop')
+            elif event.code == 'BTN_WEST' and event.state == 1:
+                conn_jetson.send(b'motor_calibration')
             
             # Trigger Buttons
             elif event.code == 'BTN_TR' and event.state == 1:
-                conn_jetson.send(b'stop_training')
+                conn_jetson.send(b'start_training')
             elif event.code == 'BTN_TL' and event.state == 1:
-                print('start capturing')
+                conn_jetson.send(b'stop_training')
                 
             # D-Pad Buttons
             # Patching Buttons with 3 States
@@ -308,40 +343,6 @@ def controller_command_handling():
                     keybindCommandDict[event.code+'_1'](0)
 
 
-def steering_to_center():
-    global digital_steer
-
-    conn_jetson.send(bytes('angle' + str(0), encoding = 'utf-8'))
-    steer_to_angle(left_center_angle, 1)
-    
-    dic = {'steer_angle': 0}
-    
-    import shared_variables
-    update_dic(dic, shared_variables.steer_dic)
-    
-
-
-def steering(state):
-    global digital_steer
-    
-    if state == -1 and digital_steer > -5:
-        digital_steer -= 1
-    if state == 1 and digital_steer < 5:
-        digital_steer += 1
-        
-    conn_jetson.send(bytes('angle' + str(digital_steer), encoding = 'utf-8'))
-    steer_to_angle(left_steering_range / 10 * digital_steer + (left_center_angle), 1)
-    
-    dic = {'steer_angle': digital_steer * 3}
-    
-    import shared_variables
-    update_dic(dic, shared_variables.steer_dic)
-
-
-def update_dic(dic, shared_dic):
-    shared_dic.update(dic)
-
-
 # Start Function as Background Thread
 def start_thread(name, target):
     thread = Thread(name=name, target=target, daemon=True)
@@ -368,7 +369,7 @@ def exit():
     gpio.cleanup()
     conn_jetson.send(b'disconnect')
     time.sleep(1)
-    
+
     terminate_socket = True
     conn_jetson.shutdown(socket.SHUT_RDWR)
     conn_jetson.close()
