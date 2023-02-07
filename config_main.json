@@ -11,5 +11,12 @@
   "fileName": {
     "raspberry": "raspberry_main.py",
     "jetson": "jetson_main.py"
+  },
+  "motorSettings": {
+    "fowardSpeed": 0.3,
+    "reverseSpeed": -0.3
+  },
+  "odriveSettings": {
+    "pollingRate": 1
   }
 }

@@ -35,7 +35,7 @@ port = data['port']
 terminate_socket = False
 
 # Jetson Python File Name
-jetson_main = 'jetson_main.py'
+jetson_main = data['fileName']['jetson']
 
 # Steering Linear Actuator Driver Pins
 pwm = 19
@@ -149,24 +149,25 @@ def steer_to_angle(target_angle, encoder):
         while not gpio.input(left_limit) and not abs(target_angle - current_angle) < steering_tolerance:
             set_motor_power(1)
             current_angle = read_steering_encoder(encoder)
-            print(f"Current_angle: {current_angle}")
+            print(f'Current_angle: {current_angle}')
         set_motor_power(0)
     elif target_angle < current_angle:
         while not gpio.input(right_limit) and not abs(target_angle - current_angle) < steering_tolerance:
             set_motor_power(-1)
             current_angle = read_steering_encoder(encoder)
-            print(f"Current_angle: {current_angle}")
+            print(f'Current_angle: {current_angle}')
         set_motor_power(0)
     
     
 def steering_cal():
     global left_steering_range
     global left_center_angle 
-    global left_max_mean_left_encoder, left_max_mean_right_encoder
-    global right_max_mean_left_encoder, right_max_mean_right_encoder
+    global left_max_mean_left_encoder, right_max_mean_left_encoder
+    global left_max_mean_right_encoder, right_max_mean_right_encoder
 
     left_max_mean_left_encoder = 0
     right_max_mean_left_encoder = 0
+    
     left_max_mean_right_encoder = 0
     right_max_mean_right_encoder = 0
     
@@ -206,7 +207,7 @@ def steering_cal():
     #     right_max_mean_right_encoder += reading
     # right_max_mean_right_encoder /= 10
     
-    # Mono-Potentiometer Steering
+    # Mono-Encoder Steering
     left_steering_range = abs(left_max_mean_left_encoder - right_max_mean_left_encoder)
     left_center_angle = left_steering_range / 100 * 52 + right_max_mean_left_encoder
     
@@ -256,7 +257,7 @@ def update_dic(dic, shared_dic):
 
 
 def controller_command_handling():
-    global digital_steer, terminate_socket, j, conn_jetson
+    global digital_steer, terminate_socket, conn_jetson
     
     while True:
         events = inputs.get_gamepad()
@@ -269,17 +270,17 @@ def controller_command_handling():
                 keybindCommandDict[event.code](event.state)
             
             # BUTTONS OVERVIEW #
-            # CONTROL LOOP              >>> BTN_START
-            # DISCONNECT                >>> BTN_BACK
-            # STEER LEFT/RIGHT          >>> ABS_HAY0X (-1)(1)
-            # MOTOR FORWARD/BACKWARD    >>> ABS_HAYOY (-1)(1)
-            # STEER CALIBRATION         >>> BTN_NORTH (Y)
-            # STEER TO CENTER           >>> BTN_SOUTH (A)
-            # MOTOR STOP                >>> BTN_EAST (B)
-            # MOTOR CALIBRATION         >>> BTN_WEST (X)
-            # START TRAINING            >>> BTN_TR
-            # STOP TRAINING             >>> BTN_TL
-            # ENABLE MOTOR CONTROL      >>> ABS_RZ & ABS_Z
+            # CONTROL LOOP              >>> BTN_START       >>> Start
+            # DISCONNECT                >>> BTN_BACK        >>> Back
+            # MOTOR FORWARD/BACKWARD    >>> ABS_HAYOY       >>> △ & ▽
+            # STEER LEFT/RIGHT          >>> ABS_HAY0X       >>> ◁ & ▷
+            # STEER CALIBRATION         >>> BTN_NORTH       >>> Y
+            # STEER TO CENTER           >>> BTN_SOUTH       >>> A
+            # MOTOR STOP                >>> BTN_EAST        >>> B
+            # MOTOR CALIBRATION         >>> BTN_WEST        >>> X
+            # START TRAINING            >>> BTN_TR          >>> RB
+            # STOP TRAINING             >>> BTN_TL          >>> LB
+            # ENABLE MOTOR CONTROL      >>> ABS_Z & ABS_RZ  >>> LT & LB 
             
             # Steering Calibration
             if event.code == 'BTN_START' and event.state == 1:
@@ -317,11 +318,11 @@ def controller_command_handling():
                 # Drive Forward
                 if (event.state == -1):
                     keybindCommandDict[event.code+'_-1'](1)
-                    conn_jetson.send(b'forward')
+                    conn_jetson.send(b'motor_forward')
                 # Drive Backwards
                 elif (event.state == 1):
                     keybindCommandDict[event.code+'_1'](1)
-                    conn_jetson.send(b'reverse')
+                    conn_jetson.send(b'motor_reverse')
                 # No Input
                 else:
                     keybindCommandDict[event.code+'_-1'](0)

@@ -25,31 +25,30 @@ user_jetson = data['user']['jetson']
 eth0_ip_jetson = data['user']['jetson']
 port = data['port']
 
-
 training_started = False
 terminate = False
-digital_steer = 0
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.connect((eth0_ip_rpi, port))
+
+cam = cv2.VideoCapture(0)
 
 jetson_mode = 'NIL'
-send_dic_delay = 1
-cam = cv2.VideoCapture(0)
+digital_steer = 0
 
 
 command_instruction = {
     'motor_calibration':lambda:calibration_m1(),
-    'forward':lambda:move_m1(0.3),
-    'reverse':lambda:move_m1(-0.3),
+    'motor_forward':lambda:move_m1(data['motorSettings']['forwardSpeed']),
+    'motor_reverse':lambda:move_m1(data['motorSettings']['reverseSpeed']),
     'motor_stop':lambda:move_m1(0),
-    'disconnect':lambda:disconnect(),
     'start_training':lambda:start_training(),
-    'stop_training':lambda:stop_training()
-    }
+    'stop_training':lambda:stop_training(),
+    'disconnect':lambda:disconnect()
+}
 
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((eth0_ip_rpi, port))
-
-
+# ODrive Axis States List in Strings 
 axis_states = [
     'Undefined', 
     'Idle', 
@@ -69,7 +68,8 @@ axis_states = [
 
 
 def send_dic():
-    global odrv, s, terminate
+    global odrv, server, terminate
+    
     while not terminate:
         try:
             odrive_dic = {
@@ -91,8 +91,11 @@ def send_dic():
             }
         except:
             print('tough')
-        s.send(bytes(str(json.dumps(odrive_dic)), encoding = "utf-8"))
-        time.sleep(send_dic_delay)
+            odrv = odrive.find_any()
+            print(f'ODrive Retrieve: {odrv}')
+        
+        server.send(bytes(str(json.dumps(odrive_dic)), encoding = 'utf-8'))
+        time.sleep(data['odriveSettings']['pollingRate'])
 
 
 def get_error_boolean(data):
@@ -115,7 +118,7 @@ def power():
     global odrv, odrv_status
     
     odrv = odrive.find_any()
-    print(f"ODrive Retrieve: {odrv}")
+    print(f'ODrive Retrieve: {odrv}')
     
     odrv.clear_errors()
 
@@ -131,7 +134,9 @@ def calibration_m1():
         dump_errors(odrv)
     except:
         print('Error in Calibration')
+        
         odrv = odrive.find_any()
+        print(f'ODrive Retrieve: {odrv}')
 
 
 def move_m1(speed):
@@ -142,82 +147,75 @@ def command_handling():
     global terminate, digital_steer
     
     while not terminate:
-        data = s.recv(1024)
+        data = server.recv(1024)
+        
         if not data:
             break
+        
         command = str(data.decode('ascii'))
         print(command)
-        if command[:5] =="angle":
-            print(command[5:7])
+        
+        if command[:5] == 'angle':
             digital_steer = int(command[5:7])
-        elif command not in command_instruction: continue
+            print(command[5:7])
+        elif command not in command_instruction: 
+            continue
         else:
             command_instruction[command]()
-    print("command handling terminated: ended")
     
-    
-def disconnect():
-    global odrv, terminate, terminate_training, cam
-    
-    odrv.axis1.requested_state = AXIS_STATE_IDLE
-    #s.shutdown(socket.SHUT_RDWR)
-    cam.release()
-    s.close()
-    del odrv
-    
-    terminate_training = True
-    terminate = True
-    
-    print(f'terminate = {terminate}')
+    print('Command Handling Terminated')
 
 
 def gather_training_data():
     global terminate_training, digital_steer, img_counter, cam
     
-    print("training init")
+    print('Training Initialise')
     #CV2
     img_counter = 0
     video = 'video'
     dtbase = ['folder']
-    capture = ['center','left','right', 'steering', 'throttle', 'reverse', 'speed']
+    capture = ['center', 'steering']
     capture_delay = 20		#capturing delay for traing data in ms
     
     #pathing and folder creation for new training data 
-    with open("/home/brushlessdc/Desktop/dtbase.csv", "r") as file:
+    with open('/home/brushlessdc/Desktop/dtbase.csv', 'r') as file:
         folderid= int(file.read())
     path = '/home/brushlessdc/Documents/IMG' + str(folderid)
     os.umask(0)
     os.mkdir(path, mode=0o777)  # mode =0o777 gives permission to read write and execute to everyone (may be a security vunerability)
     newpath = os.path.join(path, 'capture.csv')
     
-    print("training init success")
+    print('Training Initialise Success')
+    
     while not terminate_training:
-        print("training in progress")
-        result, image = cam.read() ####
-        Cat = ['center','left','right', 'steering', 'throttle', 'reverse', 'speed']
+        print('Training In Progress')
+        result, image = cam.read()
+        Cat = ['center', 'steering']
     
         print(cam.isOpened())
         if result:
             #cv2.imshow(video, image)
             cv2.waitKey(capture_delay)
-            img_name=f'center_{img_counter}.png'
+            img_name = f'center_{img_counter}.png'
             file = os.path.join(path, img_name)
             cv2.imwrite(file, image)
             img_counter += 1
             angle = digital_steer
-            dict ={"center": file,"left":'null',"right":'null', "steering": angle, "throttle":'null', "reverse":'null', "speed":'null'}
+            dict = {'center': file, 'steering': angle}
+            
             with open(newpath, 'a') as csv_file:
                 dict_object = csv.DictWriter(csv_file, fieldnames = Cat) 
                 dict_object.writerow(dict)
             
 
-    print("training_exit")
+    print('Training Exited')
     #cv2.destroyWindow(video)
     folderid += 1
-    dict ={"folder": folderid}
-    with open("/home/brushlessdc/Desktop/dtbase.csv", "w") as file:
+    dict = {'folder': folderid}
+    with open('/home/brushlessdc/Desktop/dtbase.csv', 'w') as file:
         dict_object = csv.DictWriter(file, fieldnames = dtbase) 
         dict_object.writerow(dict)
+        
     return
 
 
@@ -241,9 +239,9 @@ def disconnect():
     global odrv, terminate, terminate_training, cam
     
     odrv.axis1.requested_state = AXIS_STATE_IDLE
-    #s.shutdown(socket.SHUT_RDWR)
+    #server.shutdown(socket.SHUT_RDWR)
     cam.release()
-    s.close()
+    server.close()
     del odrv
     
     terminate_training = True
