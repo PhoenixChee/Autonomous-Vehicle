@@ -1,6 +1,6 @@
 # Shared Global Variables/GenerateData
 
-steering_angle = 0
+controlCloseloop = False
 
 odrive_dic = {
 	'battery_voltage': 0,

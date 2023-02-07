@@ -38,13 +38,13 @@ digital_steer = 0
 
 
 command_instruction = {
-    'motor_calibration':lambda:calibration_m1(),
-    'motor_forward':lambda:move_m1(data['motorSettings']['forwardSpeed']),
-    'motor_reverse':lambda:move_m1(data['motorSettings']['reverseSpeed']),
-    'motor_stop':lambda:move_m1(0),
-    'start_training':lambda:start_training(),
-    'stop_training':lambda:stop_training(),
-    'disconnect':lambda:disconnect()
+    'motor_calibration': lambda: calibration_m1(),
+    'motor_forward': lambda: move_m1(0.3),
+    'motor_reverse': lambda: move_m1(-0.3),
+    'motor_stop': lambda: move_m1(0),
+    'start_training': lambda: start_training(),
+    'stop_training': lambda: stop_training(),
+    'disconnect': lambda: disconnect()
 }
 
 
@@ -90,7 +90,7 @@ def send_dic():
                 'a1_encoder_error': get_error_boolean(odrv.axis1.encoder.error)
             }
         except:
-            print('tough')
+            print('ERROR: ODrive Dictionary')
             odrv = odrive.find_any()
             print(f'ODrive Retrieve: {odrv}')
         
@@ -133,7 +133,7 @@ def calibration_m1():
         odrv.axis1.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
         dump_errors(odrv)
     except:
-        print('Error in Calibration')
+        print('ERROR: M1 Calibration')
         
         odrv = odrive.find_any()
         print(f'ODrive Retrieve: {odrv}')
@@ -239,7 +239,6 @@ def disconnect():
     global odrv, terminate, terminate_training, cam
     
     odrv.axis1.requested_state = AXIS_STATE_IDLE
-    #server.shutdown(socket.SHUT_RDWR)
     cam.release()
     server.close()
     del odrv

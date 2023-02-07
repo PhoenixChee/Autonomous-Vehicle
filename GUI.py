@@ -39,6 +39,11 @@ class Tab1(ttk.Frame):
                 # Layout
                 self.switch_1.pack(padx=(4, 4), side='left')
                 self.switch_2.pack(padx=(4, 4), side='left')
+                
+                self.bindings
+                
+            def bindings(self):
+                registerKeybinds(data['controllerKeybinds']['START'], lambda state: keyPress(self.switch_2, state))
   
         class Box_1(ttk.Labelframe):
             def __init__(self, parent):
@@ -108,6 +113,11 @@ class Tab1(ttk.Frame):
                         # Layout
                         self.button_1.pack(fill='x', pady=(0, 4))
                         self.button_2.pack(fill='x', pady=(4, 0))
+                        
+                        self.bindings()
+                        
+                    def bindings(self):
+                        registerKeybinds(data['controllerKeybinds']['B'], lambda state: keyPress(self.button_1, state))
 
                 add_widgets_top(self).pack(fill='x', side='top')
                 add_widgets_bot(self).pack(fill='x', side='bottom')
@@ -201,6 +211,13 @@ class Tab1(ttk.Frame):
                         self.button_1.grid(row=0, column=0, padx=(0, 4), sticky='EW')
                         self.button_2.grid(row=0, column=1, padx=(4, 4), sticky='EW')
                         self.button_3.grid(row=0, column=2, padx=(4, 0), sticky='EW')
+                        
+                        self.bindings()
+                        
+                    def bindings(self):
+                        registerKeybinds(data['controllerKeybinds']['X'], lambda state: keyPress(self.button_1, state))
+                        registerKeybinds(data['controllerKeybinds']['X'], lambda state: keyPress(self.button_2, state))
+                        registerKeybinds(data['controllerKeybinds']['X'], lambda state: keyPress(self.button_3, state))
 
                 add_widgets_top(self).pack(fill='x', side='top')
                 add_widgets_bot(self).pack(fill='x', side='bottom')
@@ -380,6 +397,11 @@ class Tab1(ttk.Frame):
 
                         # Layout
                         self.button_steering.pack(fill='x', pady=(8, 0))
+                        
+                        self.bindings()
+                    
+                    def bindings(self):
+                        registerKeybinds(data['controllerKeybinds']['Y'], lambda state: keyPress(self.button_steering, state))
 
                 add_widgets_top(self).pack(fill='x', side='top')
                 add_widgets_bot(self).pack(fill='x', side='bottom')
@@ -458,10 +480,10 @@ class Tab1(ttk.Frame):
                             super().__init__(parent, padding=data['paddingSize']['frame'])
                             
                             # Controller Buttons
-                            self.label_key_lt = ttk.Button(self, style='Toggle.TButton', text='LT', command=lambda: movementControls('lt'))
-                            self.label_key_lb = ttk.Button(self, style='Toggle.TButton', text='LB', command=lambda: movementControls('lb'))
-                            self.label_key_rt = ttk.Button(self, style='Toggle.TButton', text='RT', command=lambda: movementControls('rt'))
-                            self.label_key_rb = ttk.Button(self, style='Toggle.TButton', text='RB', command=lambda: movementControls('rb'))
+                            self.label_key_lt = ttk.Button(self, style='Toggle.TButton', text='LT')
+                            self.label_key_lb = ttk.Button(self, style='Toggle.TButton', text='LB')
+                            self.label_key_rt = ttk.Button(self, style='Toggle.TButton', text='RT')
+                            self.label_key_rb = ttk.Button(self, style='Toggle.TButton', text='RB')
                             
                             # # Layout
                             self.label_key_lt.pack(padx=(0, 2), side='left')
@@ -506,10 +528,10 @@ class Tab1(ttk.Frame):
                             super().__init__(parent, padding=data['paddingSize']['frame'])
 
                             # Keyboard Buttons
-                            self.label_key_x = ttk.Button(self, style='Toggle.TButton', text='  ', command=lambda: movementControls('x'))
-                            self.label_key_y = ttk.Button(self, style='Toggle.TButton', text='  ', command=lambda: movementControls('y'))
-                            self.label_key_a = ttk.Button(self, style='Toggle.TButton', text='  ', command=lambda: movementControls('a'))
-                            self.label_key_b = ttk.Button(self, style='Toggle.TButton', text='  ', command=lambda: movementControls('b'))
+                            self.label_key_x = ttk.Button(self, style='Toggle.TButton', text='  ')
+                            self.label_key_y = ttk.Button(self, style='Toggle.TButton', text='  ')
+                            self.label_key_a = ttk.Button(self, style='Toggle.TButton', text='  ')
+                            self.label_key_b = ttk.Button(self, style='Toggle.TButton', text='  ')
 
                             # Layout
                             self.label_key_x.pack(padx=(0, 3), side='left')
@@ -530,7 +552,7 @@ class Tab1(ttk.Frame):
                             super().__init__(parent, padding=data['paddingSize']['frame'])
                             
                             # Controller Buttons
-                            self.label_key_start = ttk.Button(self, style='Toggle.TButton', text='START', command=lambda: movementControls('up'))
+                            self.label_key_start = ttk.Button(self, style='Toggle.TButton', text='START')
                             
                             # # Layout
                             self.label_key_start.pack(padx=(0, 2), side='top')
@@ -841,7 +863,6 @@ def menu_controls(self):
     
     # Bind Keys
     root.bind('<KeyPress-Escape>', lambda event: keyPress(self.button_1, True))
-    registerKeybinds('BTN_BACK', lambda state: keyPress(self.button_1, state))
 
 
 if __name__ == '__main__':

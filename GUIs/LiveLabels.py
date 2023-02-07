@@ -243,7 +243,8 @@ def speedData():
     
     M0Velocity = shared_variables.odrive_dic['m0_velocity']
     M1Velocity = shared_variables.odrive_dic['m1_velocity']
-    averageSpeed = ((M0Velocity + M1Velocity)/2) * 60
+    # averageSpeed = ((M0Velocity + M1Velocity)/2) * 60
+    averageSpeed = round((M1Velocity * 60), 2)
     
     dict = {
         'speed': str(averageSpeed) + ' RPM',

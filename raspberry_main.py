@@ -23,7 +23,8 @@ from odrive.utils import *
 
 # Import GUI Prorgam
 import GUI
-from GUIs.LiveButtons import keybindCommandDict
+from GUIs.LiveButtons import keybindCommandDict, systemShutdown
+from GUIs.LiveHome import controlCloseLoop
 
 # User, IP Addresses, Port
 user_rpi =  data['user']['raspberry']
@@ -62,7 +63,7 @@ def initialise():
     gpio.output(steering_direction, False)
     gpio.setup(pwm, gpio.OUT)
     gpio.output(pwm, False)
-
+    
     gpio.setup(left_limit, gpio.IN)
     gpio.setup(right_limit, gpio.IN)
     
@@ -91,10 +92,10 @@ def start_server():
     print(f'Connected to: {addr[0]}:{str(addr[1])}')
     print('Connection Success')
 
-    
+
 def connect_jetson():
     subprocess.run(['sudo', 'ssh', f'{user_jetson}@{eth0_ip_jetson}', f'python3 /home/brushlessdc/Desktop/{jetson_main}'])
-    
+
 
 def jetson_client_handler(client):
     global terminate_socket
@@ -164,7 +165,7 @@ def steering_cal():
     global left_center_angle 
     global left_max_mean_left_encoder, right_max_mean_left_encoder
     global left_max_mean_right_encoder, right_max_mean_right_encoder
-
+    
     left_max_mean_left_encoder = 0
     right_max_mean_left_encoder = 0
     
@@ -172,7 +173,7 @@ def steering_cal():
     right_max_mean_right_encoder = 0
     
     print('Steering Calibration Initiated')
-
+    
     # Steer to Max Left & Calibrate Both Potentiometer
     while not gpio.input(left_limit):
         set_motor_power(1)
@@ -225,7 +226,7 @@ def steering_cal():
 
 def steering_to_center():
     global digital_steer
-
+    
     conn_jetson.send(bytes('angle' + str(0), encoding = 'utf-8'))
     steer_to_angle(left_center_angle, 1)
     
@@ -233,7 +234,7 @@ def steering_to_center():
     
     import shared_variables
     update_dic(dic, shared_variables.steer_dic)
-    
+
 
 def steering(state):
     global digital_steer
@@ -242,7 +243,7 @@ def steering(state):
         digital_steer -= 1
     if state == 1 and digital_steer < 5:
         digital_steer += 1
-        
+    
     conn_jetson.send(bytes('angle' + str(digital_steer), encoding = 'utf-8'))
     steer_to_angle(left_steering_range / 10 * digital_steer + (left_center_angle), 1)
     
@@ -260,12 +261,14 @@ def controller_command_handling():
     global digital_steer, terminate_socket, conn_jetson
     
     while True:
+        import shared_variables
+        
         events = inputs.get_gamepad()
         for event in events:
             # print(event.ev_type, event.code, event.state)
             
             # Check if Controller Bind Exist
-            if (event.code in keybindCommandDict):
+            if event.code in keybindCommandDict:
                 # Highlight Button in GUI
                 keybindCommandDict[event.code](event.state)
             
@@ -282,20 +285,19 @@ def controller_command_handling():
             # STOP TRAINING             >>> BTN_TL          >>> LB
             # ENABLE MOTOR CONTROL      >>> ABS_Z & ABS_RZ  >>> LT & LB 
             
-            # Steering Calibration
+            # KNOWN ISSUES #
+            # Raspberry Pi OS   - Inputs X and Y swapped, Back as BTN_SELECT
+            # Windows OS        - Start as BTN_SELECT, Back as BTN_START
+            
+            # Start Button
             if event.code == 'BTN_START' and event.state == 1:
-                print('Control Loop')
-            # Quit Program
+                print('Start Button', controlCloseLoop)
+            
+            # Back Button
             elif event.code == 'BTN_BACK' and event.state == 1:
-                set_motor_power(0)
-                gpio.cleanup()
-                conn_jetson.send(b'disconnect')
-                time.sleep(1)
-                terminate_socket = True
-                conn_jetson.shutdown(socket.SHUT_RDWR)
-                conn_jetson.close()
+                systemShutdown(GUI.root)
                 return
-              
+            
             # Action Buttons (X)(Y)(A)(B)
             elif event.code == 'BTN_NORTH' and event.state == 1:
                 steering_cal()
@@ -303,7 +305,7 @@ def controller_command_handling():
                 steering_to_center()
             elif event.code == 'BTN_EAST' and event.state == 1:
                 conn_jetson.send(b'motor_stop')
-            elif event.code == 'BTN_WEST' and event.state == 1:
+            elif event.code == 'BTN_WEST' and event.state == 1 and shared_variables.controlCloseloop == True:
                 conn_jetson.send(b'motor_calibration')
             
             # Trigger Buttons
@@ -311,31 +313,31 @@ def controller_command_handling():
                 conn_jetson.send(b'start_training')
             elif event.code == 'BTN_TL' and event.state == 1:
                 conn_jetson.send(b'stop_training')
-                
+            
             # D-Pad Buttons
             # Patching Buttons with 3 States
-            elif 'ABS_HAT0Y' in event.code:
+            elif 'ABS_HAT0Y' in event.code and shared_variables.controlCloseloop == True:
                 # Drive Forward
-                if (event.state == -1):
+                if event.state == -1:
                     keybindCommandDict[event.code+'_-1'](1)
                     conn_jetson.send(b'motor_forward')
                 # Drive Backwards
-                elif (event.state == 1):
+                elif event.state == 1:
                     keybindCommandDict[event.code+'_1'](1)
                     conn_jetson.send(b'motor_reverse')
                 # No Input
                 else:
                     keybindCommandDict[event.code+'_-1'](0)
                     keybindCommandDict[event.code+'_1'](0)
-                    
+            
             # Patching Buttons with 3 States
             elif 'ABS_HAT0X' in event.code:
                 # Steering Left
-                if (event.state == -1):
+                if event.state == -1:
                     keybindCommandDict[event.code+'_-1'](1)
                     steering(event.state)
                 # Steering Right
-                elif (event.state == 1):
+                elif event.state == 1:
                     keybindCommandDict[event.code+'_1'](1)
                     steering(event.state)
                 # No Input
@@ -353,12 +355,12 @@ def start_thread(name, target):
 def main():
     start_server()
     start_thread('Jetson Client Handler', lambda:jetson_client_handler(conn_jetson))
-
+    
     initialise()
     set_motor_power(0)
-    time.sleep(3)
+    time.sleep(1)
     steering_cal()
-
+    
     start_thread('Controller Command Handler', lambda:controller_command_handling())
     GUI.main()
 
@@ -370,14 +372,14 @@ def exit():
     gpio.cleanup()
     conn_jetson.send(b'disconnect')
     time.sleep(1)
-
+    
     terminate_socket = True
     conn_jetson.shutdown(socket.SHUT_RDWR)
     conn_jetson.close()
     
     print('Raspberry Pi Ended') 
-    
-    
+
+
 if __name__ == '__main__':
     main()
     exit()
