@@ -2,7 +2,7 @@ monitorOn = False
 controlCloseLoop = False
 
 
-def switchODrive(frame, toggle):
+def switchODrive(toggle):
     global monitorOn
     if toggle.get() == 1:
         monitorOn = True
@@ -22,8 +22,5 @@ def switchControlLoop(toggle):
     import shared_variables
     shared_variables.controlCloseloop = controlCloseLoop
 
-
-def stopODrive():
-    print('Stop Odrive')
     
 print('Imported LiveDashboard.py')

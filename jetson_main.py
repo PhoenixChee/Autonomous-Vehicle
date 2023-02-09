@@ -31,8 +31,6 @@ terminate = False
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.connect((eth0_ip_rpi, port))
 
-cam = cv2.VideoCapture(0)
-
 jetson_mode = 'NIL'
 digital_steer = 0
 
@@ -115,11 +113,11 @@ def get_state_result(data):
     
 # <<<ODRIVE>>> #
 def power():
-    global odrv, odrv_status
+    global odrv, cam
     
+    cam = cv2.VideoCapture(0)
     odrv = odrive.find_any()
     print(f'ODrive Retrieve: {odrv}')
-    
     odrv.clear_errors()
 
     
@@ -207,11 +205,11 @@ def gather_training_data():
                 dict_object = csv.DictWriter(csv_file, fieldnames = Cat) 
                 dict_object.writerow(dict)
             
-
     print('Training Exited')
     #cv2.destroyWindow(video)
     folderid += 1
     dict = {'folder': folderid}
+    
     with open('/home/brushlessdc/Desktop/dtbase.csv', 'w') as file:
         dict_object = csv.DictWriter(file, fieldnames = dtbase) 
         dict_object.writerow(dict)

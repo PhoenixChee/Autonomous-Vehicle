@@ -49,6 +49,20 @@ def keyPress(widget, pressed):
         widget.state(['!selected'])
 
 
+# keyToggle() toggles the checkbutton when pressed
+def keyToggle(widget, state):
+    # If the button is disabled don't do anything
+    if widget.instate(['disabled']):
+        return
+
+    # If pressed set state to selected
+    if state:
+        widget.state(['selected'])
+        widget.invoke()
+    elif not state:
+        widget.state(['!selected'])
+
+
 # toggleAllChildren() toggles all children state (Enabled/Disabled)
 def toggleAllChildren(frame, toggle):
     # hasattr('winfo_children') check if the attribute is defined

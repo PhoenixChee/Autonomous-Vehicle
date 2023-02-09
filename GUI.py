@@ -30,7 +30,7 @@ class Tab1(ttk.Frame):
 
                 # Toggle Monitor Switch
                 self.toggle_switch_1 = IntVar()
-                self.switch_1 = ttk.Checkbutton(self, style='Switch.TCheckbutton', variable=self.toggle_switch_1, text='Monitor', command=lambda: switchODrive(root, self.toggle_switch_1))
+                self.switch_1 = ttk.Checkbutton(self, style='Switch.TCheckbutton', variable=self.toggle_switch_1, text='Monitor', command=lambda: switchODrive(self.toggle_switch_1))
 
                 # Toggle Control Loop Switch
                 self.toggle_switch_2 = IntVar()
@@ -40,10 +40,10 @@ class Tab1(ttk.Frame):
                 self.switch_1.pack(padx=(4, 4), side='left')
                 self.switch_2.pack(padx=(4, 4), side='left')
                 
-                self.bindings
+                self.bindings()
                 
             def bindings(self):
-                registerKeybinds(data['controllerKeybinds']['START'], lambda state: keyPress(self.switch_2, state))
+                registerKeybinds(data['controllerKeybinds']['START']+'_TOGGLE', lambda state: keyToggle(self.switch_2, state))
   
         class Box_1(ttk.Labelframe):
             def __init__(self, parent):
@@ -105,10 +105,10 @@ class Tab1(ttk.Frame):
                         super().__init__(parent, padding=data['paddingSize']['frame'])
 
                         # Stop Button
-                        self.button_1 = ttk.Button(self, text='Stop', style='Toggle.TButton', command=stopODrive)
+                        self.button_1 = ttk.Button(self, text='Stop', style='Toggle.TButton')
 
                         # Calibrate Button
-                        self.button_2 = ttk.Button(self, text='Calibrate ODrive', style='Toggle.TButton', command=lambda: calibrateControls('ODrive'))
+                        self.button_2 = ttk.Button(self, text='Calibrate ODrive', style='Toggle.TButton')
 
                         # Layout
                         self.button_1.pack(fill='x', pady=(0, 4))
@@ -117,7 +117,7 @@ class Tab1(ttk.Frame):
                         self.bindings()
                         
                     def bindings(self):
-                        registerKeybinds(data['controllerKeybinds']['B'], lambda state: keyPress(self.button_1, state))
+                        registerKeybinds(data['controllerKeybinds']['B']+'_BUTTON', lambda state: keyPress(self.button_1, state))
 
                 add_widgets_top(self).pack(fill='x', side='top')
                 add_widgets_bot(self).pack(fill='x', side='bottom')
@@ -203,9 +203,9 @@ class Tab1(ttk.Frame):
                             self.columnconfigure(index, weight=1, uniform='1')
 
                         # Calibrate
-                        self.button_1 = ttk.Button(self, style='Toggle.TButton', text='Calibrate Both', command=lambda: calibrateControls('M1'))
-                        self.button_2 = ttk.Button(self, style='Toggle.TButton', text='Calibrate M0', command=lambda: calibrateControls('M2'))
-                        self.button_3 = ttk.Button(self, style='Toggle.TButton', text='Calibrate M1', command=lambda: calibrateControls('Both'))
+                        self.button_1 = ttk.Button(self, style='Toggle.TButton', text='Calibrate Both')
+                        self.button_2 = ttk.Button(self, style='Toggle.TButton', text='Calibrate M0')
+                        self.button_3 = ttk.Button(self, style='Toggle.TButton', text='Calibrate M1')
 
                         # Layout
                         self.button_1.grid(row=0, column=0, padx=(0, 4), sticky='EW')
@@ -215,9 +215,7 @@ class Tab1(ttk.Frame):
                         self.bindings()
                         
                     def bindings(self):
-                        registerKeybinds(data['controllerKeybinds']['X'], lambda state: keyPress(self.button_1, state))
-                        registerKeybinds(data['controllerKeybinds']['X'], lambda state: keyPress(self.button_2, state))
-                        registerKeybinds(data['controllerKeybinds']['X'], lambda state: keyPress(self.button_3, state))
+                        registerKeybinds(data['controllerKeybinds']['X']+'_BUTTON', lambda state: keyPress(self.button_1, state))
 
                 add_widgets_top(self).pack(fill='x', side='top')
                 add_widgets_bot(self).pack(fill='x', side='bottom')
@@ -393,7 +391,7 @@ class Tab1(ttk.Frame):
                         super().__init__(parent, padding=data['paddingSize']['frame'])
 
                         # Steering Button
-                        self.button_steering = ttk.Button(self, text='Calibrate Steering', style='Toggle.TButton', command=lambda: calibrateControls('steering'))
+                        self.button_steering = ttk.Button(self, text='Calibrate Steering', style='Toggle.TButton')
 
                         # Layout
                         self.button_steering.pack(fill='x', pady=(8, 0))
@@ -401,7 +399,7 @@ class Tab1(ttk.Frame):
                         self.bindings()
                     
                     def bindings(self):
-                        registerKeybinds(data['controllerKeybinds']['Y'], lambda state: keyPress(self.button_steering, state))
+                        registerKeybinds(data['controllerKeybinds']['Y']+'_BUTTON', lambda state: keyPress(self.button_steering, state))
 
                 add_widgets_top(self).pack(fill='x', side='top')
                 add_widgets_bot(self).pack(fill='x', side='bottom')
@@ -426,10 +424,10 @@ class Tab1(ttk.Frame):
                             self.rowconfigure(1, weight=1, minsize=6)
 
                             # Keyboard Buttons
-                            self.label_key_w = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['speedUp'].upper(), command=lambda: movementControls('up'))
-                            self.label_key_s = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['speedDown'].upper(), command=lambda: movementControls('down'))
-                            self.label_key_a = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['steerLeft'].upper(), command=lambda: movementControls('left'))
-                            self.label_key_d = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['steerRight'].upper(), command=lambda: movementControls('right'))
+                            self.label_key_w = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['speedUp'].upper())
+                            self.label_key_s = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['speedDown'].upper())
+                            self.label_key_a = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['steerLeft'].upper())
+                            self.label_key_d = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['steerRight'].upper())
 
                             # Layout
                             self.label_key_w.grid(row=0, column=2, sticky='NSEW')
@@ -459,7 +457,7 @@ class Tab1(ttk.Frame):
                             self.rowconfigure(1, minsize=6)
 
                             # Keyboard Buttons
-                            self.label_key_x = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['speedBrake'].upper(), command=lambda: movementControls('brake'))
+                            self.label_key_x = ttk.Button(self, style='Toggle.TButton', text=data['keyboardKeybinds']['speedBrake'].upper())
 
                             # Layout
                             self.label_key_x.grid(row=2, sticky='NSEW')

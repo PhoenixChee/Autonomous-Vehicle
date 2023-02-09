@@ -24,7 +24,6 @@ from odrive.utils import *
 # Import GUI Prorgam
 import GUI
 from GUIs.LiveButtons import keybindCommandDict, systemShutdown
-from GUIs.LiveHome import controlCloseLoop
 
 # User, IP Addresses, Port
 user_rpi =  data['user']['raspberry']
@@ -268,7 +267,7 @@ def controller_command_handling():
             # print(event.ev_type, event.code, event.state)
             
             # Check if Controller Bind Exist
-            if event.code in keybindCommandDict:
+            if event.code or event.code+'_BUTTON' in keybindCommandDict:
                 # Highlight Button in GUI
                 keybindCommandDict[event.code](event.state)
             
@@ -291,7 +290,9 @@ def controller_command_handling():
             
             # Start Button
             if event.code == 'BTN_START' and event.state == 1:
-                print('Start Button', controlCloseLoop)
+                toggle_state = shared_variables.controlCloseloop        # Store Local Boolean
+                shared_variables.controlCloseloop = not toggle_state    # Write New Boolean
+                keybindCommandDict[event.code+'_TOGGLE'](not toggle_state)    # Call Function in GUI
             
             # Back Button
             elif event.code == 'BTN_BACK' and event.state == 1:
