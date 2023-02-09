@@ -58,7 +58,6 @@ def keyToggle(widget, state):
     # If pressed set state to selected
     if state:
         widget.state(['selected'])
-        widget.invoke()
     elif not state:
         widget.state(['!selected'])
 

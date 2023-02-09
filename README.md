@@ -31,7 +31,6 @@ The project uses a Logitech F710 controller to control the vehicle. The key mapp
 | Motor Calibration    	| BTN_WEST       	| X       	|
 | Start Training       	| BTN_TL         	| LB      	|
 | Stop Training        	| BTN_TR         	| RB      	|
-| Enable Motor Control 	| ABS_Z & ABS_RZ 	| LT & RT 	|
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

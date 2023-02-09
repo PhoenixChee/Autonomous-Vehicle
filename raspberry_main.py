@@ -268,8 +268,10 @@ def controller_command_handling():
             
             # Check if Controller Bind Exist
             if event.code or event.code+'_BUTTON' in keybindCommandDict:
-                # Highlight Button in GUI
-                keybindCommandDict[event.code](event.state)
+                keybindCommandDict[event.code](event.state)             # Highlight Controller Buttons in GUI
+                
+            if event.code+'_BUTTON' in keybindCommandDict:
+                keybindCommandDict[event.code+'_BUTTON'](event.state)   # Highlight Buttons in GUI
             
             # BUTTONS OVERVIEW #
             # CONTROL LOOP              >>> BTN_START       >>> Start
@@ -282,7 +284,6 @@ def controller_command_handling():
             # MOTOR CALIBRATION         >>> BTN_WEST        >>> X
             # START TRAINING            >>> BTN_TR          >>> RB
             # STOP TRAINING             >>> BTN_TL          >>> LB
-            # ENABLE MOTOR CONTROL      >>> ABS_Z & ABS_RZ  >>> LT & LB 
             
             # KNOWN ISSUES #
             # Raspberry Pi OS   - Inputs X and Y swapped, Back as BTN_SELECT
@@ -290,9 +291,9 @@ def controller_command_handling():
             
             # Start Button
             if event.code == 'BTN_START' and event.state == 1:
-                toggle_state = shared_variables.controlCloseloop        # Store Local Boolean
-                shared_variables.controlCloseloop = not toggle_state    # Write New Boolean
-                keybindCommandDict[event.code+'_TOGGLE'](not toggle_state)    # Call Function in GUI
+                toggle_state = shared_variables.controlCloseloop            # Store Local Boolean
+                shared_variables.controlCloseloop = not toggle_state        # Write New Boolean
+                keybindCommandDict[event.code+'_TOGGLE'](not toggle_state)  # Call Function in GUI
             
             # Back Button
             elif event.code == 'BTN_BACK' and event.state == 1:
