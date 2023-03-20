@@ -226,10 +226,11 @@ def steering_cal():
 def steering_to_center():
     global digital_steer
     
-    conn_jetson.send(bytes('angle' + str(0), encoding = 'utf-8'))
+    digital_steer = 0
+    conn_jetson.send(bytes('angle' + str(digital_steer), encoding = 'utf-8'))
     steer_to_angle(left_center_angle, 1)
     
-    dic = {'steer_angle': 0}
+    dic = {'steer_angle': digital_steer}
     
     import shared_variables
     update_dic(dic, shared_variables.steer_dic)
